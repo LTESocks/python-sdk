@@ -1,0 +1,1462 @@
+openapi: 3.0.3
+info:
+  title: LTESocks Public API
+  version: "2.0"
+  description: >-
+    Manage LTESocks mobile proxy ports, account preferences, payments, plans, servers, and network
+    signatures.
+
+
+    The documented mutation endpoints optionally accept an `Idempotency-Key` UUID.
+
+    A replayed response has the `Idempotency-Replayed: true` header and preserves
+
+    response headers from the original response, including `Retry-At` and `Retry-After`.
+  contact:
+    name: LTESocks support
+    url: https://ltesocks.io/
+tags:
+  - name: User
+    description: Read the current account and update its preferences.
+  - name: Ports
+    description: Order, inspect, filter, and manage mobile proxy ports.
+  - name: Payments
+    description: Review account payments and create payment requests.
+  - name: General
+    description: Discover plans, servers, signatures, and token information.
+paths:
+  /user:
+    get:
+      summary: Get the current user
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      tags:
+        - User
+      operationId: getUser
+      description: Returns the account associated with the bearer token, including preferences and account
+        status.
+      security:
+        - bearerAuth: []
+  /user/preferences:
+    post:
+      summary: Update user preferences
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPreferences"
+        description: User preferences object
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - User
+      operationId: updateUserPreferences
+      description: Updates supported preferences for the current account and returns the updated user object.
+      security:
+        - bearerAuth: []
+  /ports:
+    get:
+      summary: List ports
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Port"
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 7
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: listPorts
+      description: Returns the first page of mobile proxy ports owned by the current account.
+      security:
+        - bearerAuth: []
+    post:
+      summary: Filter ports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan:
+                  type: string
+                  example: O2
+                  description: Plan ID (exact)
+                countryCode:
+                  type: string
+                  example: GB
+                tags:
+                  type: array
+                  maxLength: 30
+                  items:
+                    type: string
+                    maxLength: 50
+                page:
+                  type: integer
+                  example: 1
+                pageSize:
+                  type: integer
+                  maximum: 100
+                  example: 20
+        description: Pagination parameters
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Port"
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 7
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: filterPorts
+      description: Returns a paginated list of ports filtered by plan, country, and tags.
+      security:
+        - bearerAuth: []
+  /ports/{id}:
+    get:
+      summary: Get a port
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: getPort
+      description: Returns one mobile proxy port by its account-scoped identifier.
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete a port
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            "*/*":
+              schema:
+                type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: deletePort
+      description: Permanently removes a port from the current account. Use this operation only after
+        confirming the identifier.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/delete:
+    post:
+      summary: Delete a port with POST
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            "*/*":
+              schema:
+                type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: deletePortWithPost
+      description: Compatibility endpoint that permanently removes a port using POST.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/log:
+    get:
+      summary: Get recent port log
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PortLog"
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 7
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: getPortLog
+      description: Returns the first page of connection and status events for a port.
+      security:
+        - bearerAuth: []
+    post:
+      summary: Filter port log
+      requestBody:
+        $ref: "#/components/requestBodies/Body"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PortLog"
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 7
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: filterPortLog
+      description: Returns port events for a requested time range with pagination.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/vpn:
+    get:
+      summary: Download VPN configuration
+      responses:
+        "200":
+          description: Successful operation
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/zip:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: getPortVpn
+      description: Downloads the VPN configuration archive associated with a port.
+      security:
+        - bearerAuth: []
+    post:
+      summary: Download VPN configuration with POST
+      responses:
+        "200":
+          description: Successful operation
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/zip:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: downloadPortVpnWithPost
+      description: Compatibility endpoint that downloads the VPN configuration archive using POST.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/order:
+    post:
+      summary: Order a mobile port
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        $ref: "#/components/requestBodies/Body2"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: orderPorts
+      description: Creates a mobile proxy port using the selected plan and tarification.
+      security:
+        - bearerAuth: []
+  /ports/{id}/extend:
+    post:
+      summary: Extend a port
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: extendPort
+      description: Extends the active period of a port according to the selected plan.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/plan:
+    post:
+      summary: Change port plan
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        $ref: "#/components/requestBodies/Body2"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: changePortPlan
+      description: Changes the billing plan assigned to a port.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/tags:
+    post:
+      summary: Update port tags
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  maxLength: 30
+                  items:
+                    type: string
+                    maxLength: 50
+        description: Tags
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: updatePortTags
+      description: Replaces the tags attached to a port. Tags are useful for grouping and filtering.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/autorenew:
+    post:
+      summary: Configure automatic renewal
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                autoRenew:
+                  type: boolean
+                  example: true
+        description: Autorenew parameters
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: updatePortAutorenew
+      description: Enables or disables automatic renewal for a port.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/signature:
+    post:
+      summary: Change port signature
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  example: Linux
+        description: Signature parameters
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: updatePortSignature
+      description: Changes the mobile network signature assigned to a port.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/credentials:
+    post:
+      summary: Update proxy credentials
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortCredentials"
+        description: Credentials parameters
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: updatePortCredentials
+      description: Replaces the username and password used to connect to a port.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/autoreset:
+    post:
+      summary: Configure automatic reset
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                autoResetInterval:
+                  type: integer
+                  example: 600
+                  description: Auto reset interval in seconds, 0 means disabled
+        description: Auto reset interval parameters
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: updatePortAutoreset
+      description: Enables or disables scheduled automatic IP resets for a port.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /ports/{id}/reset:
+    post:
+      summary: Reset a port
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error. When the reset is temporarily unavailable, the response may include retry headers.
+          headers:
+            Retry-At:
+              description: ISO 8601 timestamp indicating when a reset can be attempted again.
+              schema:
+                type: string
+                format: date-time
+            Retry-After:
+              description: Number of seconds to wait before attempting a reset again.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: resetPort
+      description: Requests an immediate mobile connection reset and IP rotation for a port.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Account-scoped port identifier.
+        schema:
+          type: string
+  /tokens/{token}:
+    get:
+      summary: Resolve a port reset token
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Ports
+      operationId: resolveResetToken
+      description: Returns the port associated with a port reset token.
+      security:
+        - bearerAuth: []
+    parameters:
+      - name: token
+        in: path
+        required: true
+        description: Port reset token to resolve.
+        schema:
+          type: string
+  /payments:
+    get:
+      summary: List payments
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PaymentHistoryRecord"
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 7
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Payments
+      operationId: listPayments
+      description: Returns the first page of payments for the current account.
+      security:
+        - bearerAuth: []
+    post:
+      summary: Filter payments
+      requestBody:
+        $ref: "#/components/requestBodies/Body"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PaymentHistoryRecord"
+                  page:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 7
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - Payments
+      operationId: filterPayments
+      description: Returns payments using pagination and available filters.
+      security:
+        - bearerAuth: []
+  /payments/currencies:
+    get:
+      summary: List payment currencies
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Under development
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DevelopmentError"
+      tags:
+        - Payments
+      operationId: listPaymentCurrencies
+      description: Reserved endpoint for payment currencies. The v2 contract currently marks this
+        operation as under development.
+      security:
+        - bearerAuth: []
+  /payments/request:
+    post:
+      summary: Create a payment request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  example: 10000
+                  description: Payment amount in cents (always USD)
+                currency:
+                  type: string
+                  example: btc
+                  description: Currency in which payment will be paid, given amount will be converted automatically
+                    from USD
+        description: Payment request parameters
+        required: true
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Under development
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DevelopmentError"
+      tags:
+        - Payments
+      operationId: requestPayment
+      description: Reserved endpoint for payment requests. The v2 contract currently marks this operation
+        as under development.
+      security:
+        - bearerAuth: []
+  /plans:
+    get:
+      summary: List plans
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plans:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - General
+      operationId: listPlans
+      description: Returns the mobile proxy plans available to the current account.
+      security:
+        - bearerAuth: []
+  /servers:
+    get:
+      summary: List servers
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vpnServers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Server"
+                  proxyServers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Server"
+                  proxyProtocols:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - http
+                        - https
+                        - socks5
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - General
+      operationId: listServers
+      description: Returns available proxy servers and their supported locations.
+      security:
+        - bearerAuth: []
+  /signatures:
+    get:
+      summary: List signatures
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signatures:
+                    type: array
+                    items:
+                      type: string
+                      example: Windows
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      tags:
+        - General
+      operationId: listSignatures
+      description: Returns mobile network signatures that can be selected when ordering or updating a port.
+      security:
+        - bearerAuth: []
+servers:
+  - url: https://api.ltesocks.io/v2
+    description: Production API
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: Optional UUID that identifies one mutation request. Reuse it only when retrying the
+        same request.
+      required: false
+      schema:
+        type: string
+        format: uuid
+  requestBodies:
+    Body:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              from:
+                type: string
+                format: date-time
+                example: 2022-04-02T00:40:44
+              to:
+                type: string
+                format: date-time
+                example: 2022-04-02T00:40:44
+              page:
+                type: integer
+                example: 1
+              pageSize:
+                type: integer
+                maximum: 100
+                example: 20
+      description: Pagination parameters
+      required: true
+    Body2:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              plan:
+                type: string
+                example: 5349b4ddd2781d08c09890f3
+                description: Plan ID
+              tarification:
+                $ref: "#/components/schemas/PlanTarification"
+      description: Plan parameters
+      required: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API token
+      description: "Create or reset the API token in the LTESocks dashboard, then send it as
+        `Authorization: Bearer <token>`."
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: example error
+          description: Error text representation
+    DevelopmentError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Under Development
+          description: Error text representation
+    GeoIP:
+      type: object
+      properties:
+        continentCode:
+          type: string
+          example: NA
+        continentName:
+          type: string
+          example: North America
+        countryCode2:
+          type: string
+          example: US
+        countryCode3:
+          type: string
+          example: United States
+        stateProv:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        zipcode:
+          type: string
+        latitude:
+          type: string
+          example: "38.89037"
+        longitude:
+          type: string
+          example: "-77.03196"
+        isp:
+          type: string
+          example: T-Mobile USA, Inc.
+    Server:
+      type: object
+      properties:
+        host:
+          type: string
+          example: vpn1.ltesocks.io
+        countryCode:
+          type: string
+          example: NL
+    Plan:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5349b4ddd2781d08c09890f3
+        name:
+          type: string
+          example: UK Three
+        available:
+          type: boolean
+          example: true
+        availablePorts:
+          type: integer
+          example: 10
+        description:
+          type: string
+          example: Plan description
+        countryCode:
+          type: string
+          example: UK
+        vpnAccess:
+          type: boolean
+          example: true
+        tarifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanTarification"
+    PlanTarification:
+      type: object
+      properties:
+        time:
+          type: integer
+          example: 2592000
+          description: Plan duration time in seconds
+        traffic:
+          type: integer
+          example: 51200
+          description: Plan traffic amount in megabytes
+        price:
+          type: integer
+          example: 14500
+          description: Plan price in cents
+    User:
+      type: object
+      properties:
+        login:
+          type: string
+          example: user
+          description: User login
+        email:
+          type: string
+          format: email
+          example: user@example.com
+          description: User email address
+        balance:
+          type: integer
+          example: 10000
+          description: User balance in cents (100$ = 10000)
+        portsCount:
+          type: integer
+          example: 3
+          description: Total ports number
+        portsLimit:
+          type: integer
+          example: 10
+          description: Maximum allowed ports number
+        discountPercent:
+          type: integer
+          example: 10
+          description: User discount in percentage
+        preferences:
+          $ref: "#/components/schemas/UserPreferences"
+    UserPreferences:
+      type: object
+      properties:
+        vpnServer:
+          type: string
+          format: host
+          example: vpn1.ltesocks.io
+          description: Default server hostname to connect via OpenVPN
+        proxyServer:
+          type: string
+          format: host
+          example: ap1.ltesocks.io
+          description: Default server hostname to connect via proxy
+        proxyProtocol:
+          type: string
+          example: socks5
+          description: Default proxy protocol
+          enum:
+            - http
+            - https
+            - socks5
+    Port:
+      type: object
+      properties:
+        port:
+          type: string
+          example: 10000
+          description: Port number
+        ip:
+          type: string
+          example: 1.1.1.1
+          description: Port current IP address (0.0.0.0 if not available)
+        geoip:
+          $ref: "#/components/schemas/GeoIP"
+        status:
+          type: string
+          example: active
+          description: Port status
+          enum:
+            - active
+            - reset
+            - suspended
+            - disconnected
+            - outoftraffic
+        resetToken:
+          type: string
+          example: 6015510d206e4d7b023e5f978a56e3cf49d7e79bc26cf28c69b75314e098a61b
+          description: Port reset token
+        signature:
+          type: string
+          example: Windows
+          description: Port signature
+        vpnAccess:
+          type: boolean
+          example: true
+          description: Indicates whether port has access to the VPN server
+        autoResetInterval:
+          type: integer
+          description: Port auto reset interval in seconds, 0 means disabled
+        tags:
+          type: array
+          maxLength: 30
+          description: Port tags
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+            pattern: (?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])
+        plan:
+          $ref: "#/components/schemas/PortPlan"
+        credentials:
+          $ref: "#/components/schemas/PortCredentials"
+    PortPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5349b4ddd2781d08c09890f3
+          description: Plan ID
+        name:
+          type: string
+          example: UK Three
+          description: Plan title
+        countryCode:
+          type: string
+          example: UK
+          description: Plan country code
+        enabled:
+          type: boolean
+          example: true
+          description: Indicates whether plan is active
+        autoRenew:
+          type: boolean
+          example: true
+          description: Indicates whether plan auto renewal is active
+        activatedAt:
+          type: string
+          format: date-time
+          example: 2022-04-02T05:57:29.054Z
+          description: Plan activation time
+        expiresAt:
+          type: string
+          format: date-time
+          example: 2022-05-02T05:57:29.054Z
+          description: Plan expiration time
+        trafficRemains:
+          type: integer
+          example: 51200
+          description: Remaining traffic amount in megabytes
+        tarification:
+          $ref: "#/components/schemas/PlanTarification"
+    PortCredentials:
+      type: object
+      properties:
+        ip:
+          type: array
+          maxLength: 20
+          items:
+            type: string
+            example: 2.2.2.2
+            description: IP address to allow access from
+        password:
+          type: array
+          maxLength: 20
+          items:
+            type: object
+            properties:
+              login:
+                type: string
+                example: login
+              password:
+                type: string
+                example: password
+    PortLog:
+      type: object
+      properties:
+        action:
+          type: string
+          example: update
+        cause:
+          type: string
+          example: admin
+        source:
+          type: string
+          example: adminDashboard
+        extra:
+          type: string
+          example: extra info
+        createdAt:
+          type: string
+          format: date-time
+          example: 2022-04-03T01:13:50.182Z
+    PaymentHistoryRecord:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          example: 2022-04-03T01:13:50.182Z
+        status:
+          type: string
+          enum:
+            - success
+            - failed
+        port:
+          type: string
+          example: 10000
+          description: Port number
+        amount:
+          type: integer
+          example: -10000
+          description: Payment amount in cents
+        balance:
+          type: integer
+          example: 25000
+          description: Balance at the time of payment
+        description:
+          type: string
+          example: Port 10000 subscription fee
+          description: Payment description
+  responses:
+    Unauthorized:
+      description: The bearer token is missing, invalid, or no longer active.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: The configured request limit has been exceeded.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+externalDocs:
+  description: LTESocks integration guides
+  url: https://docs.ltesocks.io/
+security:
+  - bearerAuth: []

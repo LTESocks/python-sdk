@@ -1,0 +1,35 @@
+resources:
+  User: {attribute: user, class_name: UserResource}
+  Ports: {attribute: ports, class_name: PortsResource}
+  Payments: {attribute: payments, class_name: PaymentsResource}
+  General: {attribute: general, class_name: GeneralResource}
+
+operations:
+  getUser: get
+  updateUserPreferences: update_preferences
+  listPorts: list
+  filterPorts: filter
+  getPort: get
+  deletePort: delete
+  deletePortWithPost: delete_compat
+  getPortLog: get_log
+  filterPortLog: filter_log
+  getPortVpn: download_vpn
+  downloadPortVpnWithPost: download_vpn_compat
+  orderPorts: order
+  extendPort: extend
+  changePortPlan: change_plan
+  updatePortTags: update_tags
+  updatePortAutorenew: set_auto_renew
+  updatePortSignature: update_signature
+  updatePortCredentials: update_credentials
+  updatePortAutoreset: set_auto_reset_interval
+  resetPort: reset
+  resolveResetToken: resolve_reset_token
+  listPayments: list
+  filterPayments: filter
+  listPaymentCurrencies: list_currencies
+  requestPayment: request
+  listPlans: list_plans
+  listServers: list_servers
+  listSignatures: list_signatures

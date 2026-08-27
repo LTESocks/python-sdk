@@ -1,0 +1,12 @@
+package_name_override: _generated
+project_name_override: ltesocks-generated
+package_version_override: 1.0.0
+use_path_prefixes_for_title_model_names: true
+generate_all_tags: false
+docstrings_on_attributes: true
+literal_enums: false
+content_type_overrides:
+  application/pdf: application/octet-stream
+  application/zip: application/octet-stream
+post_hooks: []
+class_overrides: {}

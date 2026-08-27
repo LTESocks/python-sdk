@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ltesocks-sdk"
+version = "1.0.0"
+description = "Official sync and async Python SDK for the LTESocks public API."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "LTESocks", email = "support@ltesocks.io" }]
+keywords = ["ltesocks", "proxy", "sdk", "api", "residential-proxy"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+dependencies = [
+    "attrs>=23.2",
+    "httpx>=0.27,<1",
+    "typing-extensions>=4.8",
+]
+
+[project.urls]
+Homepage = "https://ltesocks.io"
+Documentation = "https://docs.ltesocks.io/"
+Repository = "https://github.com/ltesocks/python-sdk"
+Issues = "https://github.com/ltesocks/python-sdk/issues"
+Changelog = "https://github.com/ltesocks/python-sdk/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+    "build>=1.2,<2",
+    "mypy>=1.17,<2",
+    "openapi-python-client==0.29.0",
+    "pytest>=8.4,<10",
+    "pytest-asyncio>=1.1,<2",
+    "pyyaml>=6.0,<7",
+    "ruff>=0.12,<1",
+    "twine>=6.1,<7",
+    "types-pyyaml>=6.0,<7",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ltesocks_sdk"]
+core-metadata-version = "2.4"
+
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
+include = [
+    "/src",
+    "/docs",
+    "/openapi",
+    "/scripts",
+    "/tests",
+    "/CHANGELOG.md",
+    "/CONTRIBUTING.md",
+    "/LICENSE",
+    "/Makefile",
+    "/README.md",
+    "/SECURITY.md",
+    "/pyproject.toml",
+    "/uv.lock",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
+asyncio_mode = "strict"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = [
+    "src/ltesocks_sdk/_generated",
+    "src/ltesocks_sdk/models",
+    "src/ltesocks_sdk/resources",
+]
+
+[tool.ruff.lint]
+select = ["A", "ASYNC", "B", "C4", "E", "F", "I", "N", "PERF", "PIE", "RUF", "SIM", "UP", "W"]
+ignore = ["A002"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/ltesocks_sdk", "tests"]
+exclude = ["src/ltesocks_sdk/_generated"]
+warn_unused_ignores = true
