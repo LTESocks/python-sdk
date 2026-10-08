@@ -45,7 +45,7 @@ def validate(document: dict[str, Any]) -> tuple[int, int]:
         raise SystemExit("The public schema unexpectedly contains admin paths.")
     operations = sum(method in HTTP_METHODS for item in paths.values() for method in item)
     schemas = len(document.get("components", {}).get("schemas", {}))
-    if operations != 28 or schemas != 13:
+    if operations != 36 or schemas != 20:
         raise SystemExit(
             f"Unexpected contract size: {operations} operations and {schemas} schemas."
         )

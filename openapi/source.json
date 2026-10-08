@@ -1,8 +1,8 @@
 {
-  "commit": "a157b4d304f43820e4755a8eab1cf60e7700a309",
-  "operations": 28,
+  "commit": "d4ec11b7422ea30af81cff810c8ee412b8f0fac8",
+  "operations": 36,
   "repository": "LTESocks/docs",
-  "schemas": 13,
-  "sha256": "27dffb3c08b969a1cd38b2592f3e5948e8adb13a604c72ad87f7de68b21cd847",
+  "schemas": 20,
+  "sha256": "9bdbd2367a60888cd4b56d00446df09700bd71522e55e1a95af44546d36ef008",
   "source": "openapi.yaml"
 }

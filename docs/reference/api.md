@@ -43,6 +43,19 @@ All methods exist on both `Client` and `AsyncClient`; async calls must be awaite
 | `update_signature()` | `POST /ports/{id}/signature` | `Port` |
 | `update_tags()` | `POST /ports/{id}/tags` | `Port` |
 
+## `residential_subusers`
+
+| Method | HTTP endpoint | Returns |
+| --- | --- | --- |
+| `change_traffic()` | `POST /proxies/residential/subusers/{childId}/traffic/{action}` | `ResidentialSubuserResponse` |
+| `create()` | `POST /proxies/residential/subusers` | `ResidentialSubuserResponse` |
+| `delete()` | `DELETE /proxies/residential/subusers/{childId}` | `None` |
+| `get()` | `GET /proxies/residential/subusers/{childId}` | `ResidentialSubuserResponse` |
+| `get_credentials()` | `GET /proxies/residential/subusers/{childId}/credentials` | `ResidentialCredentialsResponse` |
+| `get_package()` | `GET /proxies/residential/subusers/{childId}/package` | `ResidentialPackageResponse` |
+| `list()` | `GET /proxies/residential/subusers` | `ResidentialSubuserListResponse` |
+| `update()` | `PATCH /proxies/residential/subusers/{childId}` | `ResidentialSubuserResponse` |
+
 ## `user`
 
 | Method | HTTP endpoint | Returns |

@@ -5,7 +5,7 @@
 [![Typed](https://img.shields.io/badge/typing-py.typed-3776AB)](src/ltesocks_sdk/py.typed)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-The official synchronous and asynchronous Python client for the [LTESocks Public API v2](https://docs.ltesocks.io/). It covers account preferences, mobile proxy ports, payments, plans, servers, and network signatures with generated typed models.
+The official synchronous and asynchronous Python client for the [LTESocks Public API v2](https://docs.ltesocks.io/). It covers account preferences, mobile proxy ports, residential sub-users, payments, plans, servers, and network signatures with generated typed models.
 
 > Package publication has not started yet. The repository is ready, but `ltesocks-sdk` is intentionally not available on PyPI until the first release is approved.
 
@@ -56,8 +56,21 @@ The default endpoint is `https://api.ltesocks.io/v2`. Both clients accept `base_
 | `client.ports` | List, filter, order, update, reset, delete, and download VPN archives |
 | `client.payments` | List/filter history and access reserved payment operations |
 | `client.general` | List plans, servers, and signatures |
+| `client.residential_subusers` | Manage users, package traffic, and proxy credentials under a reseller account |
 
 Every operation also has a `_with_response()` variant with status, headers, ETag, and replay metadata. See the generated [API resource reference](docs/reference/api.md) and [model reference](docs/reference/models.md).
+
+Residential sub-user mutations require a stable key supplied by your application:
+
+```python
+from uuid import uuid4
+from ltesocks_sdk.models import CreateResidentialSubuser
+
+created = client.residential_subusers.create(
+    body=CreateResidentialSubuser(login="customer_01", traffic_bytes=1_073_741_824),
+    idempotency_key=str(uuid4()),
+)
+```
 
 ## Typed request models
 

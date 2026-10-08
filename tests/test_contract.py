@@ -32,14 +32,14 @@ def test_pinned_contract_metadata_and_operation_map() -> None:
         for method, operation in path_item.items()
         if method in HTTP_METHODS
     ]
-    assert len(operations) == 28
-    assert len(contract["components"]["schemas"]) == 13
+    assert len(operations) == 36
+    assert len(contract["components"]["schemas"]) == 20
     assert {operation["operationId"] for operation in operations} == set(mapping["operations"])
-    assert len(mapping["resources"]) == 4
+    assert len(mapping["resources"]) == 5
 
     metadata = json.loads((ROOT / "openapi/source.json").read_text())
-    assert metadata["operations"] == 28
-    assert metadata["schemas"] == 13
+    assert metadata["operations"] == 36
+    assert metadata["schemas"] == 20
     digest = hashlib.sha256((ROOT / "openapi/openapi.yaml").read_bytes()).hexdigest()
     assert metadata["sha256"] == digest
 
@@ -61,7 +61,7 @@ def test_every_operation_has_sync_async_and_response_facades() -> None:
             assert hasattr(sync_class, f"{method_name}_with_response")
             assert hasattr(async_class, f"{method_name}_with_response")
             checked += 1
-    assert checked == 28
+    assert checked == 36
 
 
 def test_client_resources_and_models() -> None:

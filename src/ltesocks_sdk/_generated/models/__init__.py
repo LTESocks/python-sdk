@@ -1,6 +1,9 @@
 """Contains all the data models used in inputs/outputs"""
 
 from .change_port_plan_body import ChangePortPlanBody
+from .change_residential_subuser_traffic_action import ChangeResidentialSubuserTrafficAction
+from .change_residential_subuser_traffic_body import ChangeResidentialSubuserTrafficBody
+from .create_residential_subuser import CreateResidentialSubuser
 from .development_error import DevelopmentError
 from .error import Error
 from .filter_payments_body import FilterPaymentsBody
@@ -29,17 +32,28 @@ from .port_log import PortLog
 from .port_plan import PortPlan
 from .port_status import PortStatus
 from .request_payment_body import RequestPaymentBody
+from .residential_credentials_response import ResidentialCredentialsResponse
+from .residential_credentials_response_data import ResidentialCredentialsResponseData
+from .residential_package_response import ResidentialPackageResponse
+from .residential_package_response_data import ResidentialPackageResponseData
+from .residential_subuser import ResidentialSubuser
+from .residential_subuser_list_response import ResidentialSubuserListResponse
+from .residential_subuser_response import ResidentialSubuserResponse
 from .server import Server
 from .update_port_autorenew_body import UpdatePortAutorenewBody
 from .update_port_autoreset_body import UpdatePortAutoresetBody
 from .update_port_signature_body import UpdatePortSignatureBody
 from .update_port_tags_body import UpdatePortTagsBody
+from .update_residential_subuser import UpdateResidentialSubuser
 from .user import User
 from .user_preferences import UserPreferences
 from .user_preferences_proxy_protocol import UserPreferencesProxyProtocol
 
 __all__ = (
     "ChangePortPlanBody",
+    "ChangeResidentialSubuserTrafficAction",
+    "ChangeResidentialSubuserTrafficBody",
+    "CreateResidentialSubuser",
     "DevelopmentError",
     "Error",
     "FilterPaymentsBody",
@@ -68,11 +82,19 @@ __all__ = (
     "PortPlan",
     "PortStatus",
     "RequestPaymentBody",
+    "ResidentialCredentialsResponse",
+    "ResidentialCredentialsResponseData",
+    "ResidentialPackageResponse",
+    "ResidentialPackageResponseData",
+    "ResidentialSubuser",
+    "ResidentialSubuserListResponse",
+    "ResidentialSubuserResponse",
     "Server",
     "UpdatePortAutorenewBody",
     "UpdatePortAutoresetBody",
     "UpdatePortSignatureBody",
     "UpdatePortTagsBody",
+    "UpdateResidentialSubuser",
     "User",
     "UserPreferences",
     "UserPreferencesProxyProtocol",

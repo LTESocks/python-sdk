@@ -177,6 +177,7 @@ class Client:
         self.ports = resources.PortsResource(self)
         self.payments = resources.PaymentsResource(self)
         self.general = resources.GeneralResource(self)
+        self.residential_subusers = resources.ResidentialSubusersResource(self)
 
     def _call(
         self,
@@ -345,6 +346,7 @@ class AsyncClient:
         self.ports = resources.AsyncPortsResource(self)
         self.payments = resources.AsyncPaymentsResource(self)
         self.general = resources.AsyncGeneralResource(self)
+        self.residential_subusers = resources.AsyncResidentialSubusersResource(self)
 
     async def _call(
         self,

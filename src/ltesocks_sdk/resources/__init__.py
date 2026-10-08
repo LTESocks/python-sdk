@@ -5,6 +5,8 @@ from .payments import PaymentsResource
 from .payments import AsyncPaymentsResource
 from .ports import PortsResource
 from .ports import AsyncPortsResource
+from .residential_subusers import ResidentialSubusersResource
+from .residential_subusers import AsyncResidentialSubusersResource
 from .user import UserResource
 from .user import AsyncUserResource
 
@@ -15,6 +17,8 @@ __all__ = [
     "AsyncPaymentsResource",
     "PortsResource",
     "AsyncPortsResource",
+    "ResidentialSubusersResource",
+    "AsyncResidentialSubusersResource",
     "UserResource",
     "AsyncUserResource",
 ]

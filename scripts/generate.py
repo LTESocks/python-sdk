@@ -144,8 +144,8 @@ def contract_operations() -> tuple[list[Operation], dict[str, Any], dict[str, An
     extra = set(aliases) - found_ids
     if extra:
         raise SystemExit(f"Mappings exist for unknown operations: {sorted(extra)}")
-    if len(operations) != 28:
-        raise SystemExit(f"Expected 28 operations, got {len(operations)}")
+    if len(operations) != 36:
+        raise SystemExit(f"Expected 36 operations, got {len(operations)}")
     return operations, resources, generator_config
 
 

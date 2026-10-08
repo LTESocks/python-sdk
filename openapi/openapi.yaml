@@ -24,6 +24,8 @@ tags:
     description: Review account payments and create payment requests.
   - name: General
     description: Discover plans, servers, signatures, and token information.
+  - name: ResidentialSubusers
+    description: Manage residential users under a reseller account.
 paths:
   /user:
     get:
@@ -1074,6 +1076,210 @@ paths:
       description: Returns mobile network signatures that can be selected when ordering or updating a port.
       security:
         - bearerAuth: []
+  /proxies/residential/subusers:
+    get:
+      tags:
+        - ResidentialSubusers
+      operationId: listResidentialSubusers
+      summary: List residential sub-users
+      description: Requires a Master account linked to a ProxyRequest reseller.
+      responses:
+        "200":
+          description: Sub-users owned by the authenticated reseller.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentialSubuserListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - ResidentialSubusers
+      operationId: createResidentialSubuser
+      summary: Create a residential sub-user
+      parameters:
+        - $ref: "#/components/parameters/RequiredIdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateResidentialSubuser"
+      responses:
+        "201":
+          description: Created sub-user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentialSubuserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
+  /proxies/residential/subusers/{childId}:
+    parameters:
+      - $ref: "#/components/parameters/ResidentialChildId"
+    get:
+      tags:
+        - ResidentialSubusers
+      operationId: getResidentialSubuser
+      summary: Get a residential sub-user
+      responses:
+        "200":
+          description: Sub-user owned by the authenticated reseller.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentialSubuserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
+    patch:
+      tags:
+        - ResidentialSubusers
+      operationId: updateResidentialSubuser
+      summary: Update sub-user details and access rules
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateResidentialSubuser"
+      responses:
+        "200":
+          description: Updated sub-user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentialSubuserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - ResidentialSubusers
+      operationId: deleteResidentialSubuser
+      summary: Delete a residential sub-user
+      parameters:
+        - $ref: "#/components/parameters/RequiredIdempotencyKey"
+      responses:
+        "200":
+          description: Deleted.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
+  /proxies/residential/subusers/{childId}/package:
+    parameters:
+      - $ref: "#/components/parameters/ResidentialChildId"
+    get:
+      tags:
+        - ResidentialSubusers
+      operationId: getResidentialSubuserPackage
+      summary: Get package and traffic allocation
+      responses:
+        "200":
+          description: Current configured residential package and usage.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentialPackageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
+  /proxies/residential/subusers/{childId}/credentials:
+    parameters:
+      - $ref: "#/components/parameters/ResidentialChildId"
+    get:
+      tags:
+        - ResidentialSubusers
+      operationId: getResidentialSubuserCredentials
+      summary: Retrieve residential proxy credentials
+      description: Returns the proxy password only on this explicit request.
+      responses:
+        "200":
+          description: Proxy username and password.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentialCredentialsResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
+  /proxies/residential/subusers/{childId}/traffic/{action}:
+    parameters:
+      - $ref: "#/components/parameters/ResidentialChildId"
+      - name: action
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+            - add
+            - subtract
+            - reset
+    post:
+      tags:
+        - ResidentialSubusers
+      operationId: changeResidentialSubuserTraffic
+      summary: Add, subtract, or reset traffic for the configured package
+      parameters:
+        - $ref: "#/components/parameters/RequiredIdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                traffic_bytes:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                  description: Required for add and subtract; omitted for reset.
+      responses:
+        "200":
+          description: Updated package allocation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResidentialSubuserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+      security:
+        - bearerAuth: []
 servers:
   - url: https://api.ltesocks.io/v2
     description: Production API
@@ -1088,6 +1294,21 @@ components:
       schema:
         type: string
         format: uuid
+    ResidentialChildId:
+      name: childId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RequiredIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Stable request key; reuse only for a retry of the same operation.
+      schema:
+        type: string
+        maxLength: 255
   requestBodies:
     Body:
       content:
@@ -1442,6 +1663,187 @@ components:
           type: string
           example: Port 10000 subscription fee
           description: Payment description
+    ResidentialSubuser:
+      type: object
+      required:
+        - id
+        - login
+        - status
+        - package_id
+        - remaining_bytes
+      properties:
+        id:
+          type: string
+          format: uuid
+        login:
+          type: string
+        email:
+          type: string
+          nullable: true
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        status:
+          type: string
+        package_id:
+          type: string
+          format: uuid
+        traffic_bytes:
+          type: integer
+          format: int64
+          nullable: true
+        used_bytes:
+          type: integer
+          format: int64
+          nullable: true
+        remaining_bytes:
+          type: integer
+          format: int64
+        allowed_ips:
+          type: array
+          items:
+            type: string
+        blocked_domains:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+    CreateResidentialSubuser:
+      type: object
+      required:
+        - login
+        - traffic_bytes
+      properties:
+        login:
+          type: string
+          minLength: 4
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          nullable: true
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        package_id:
+          type: string
+          format: uuid
+          nullable: true
+        traffic_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+    UpdateResidentialSubuser:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          nullable: true
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        allowed_ips:
+          type: array
+          items:
+            type: string
+            format: ipv4
+        blocked_domains:
+          type: array
+          items:
+            type: string
+        connection_limit:
+          type: integer
+          minimum: -1
+    ResidentialSubuserResponse:
+      type: object
+      required:
+        - success
+        - code
+        - data
+      properties:
+        success:
+          type: boolean
+        code:
+          type: integer
+        data:
+          $ref: "#/components/schemas/ResidentialSubuser"
+    ResidentialSubuserListResponse:
+      type: object
+      required:
+        - success
+        - code
+        - data
+      properties:
+        success:
+          type: boolean
+        code:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResidentialSubuser"
+    ResidentialPackageResponse:
+      type: object
+      required:
+        - success
+        - code
+        - data
+      properties:
+        success:
+          type: boolean
+        code:
+          type: integer
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            package_id:
+              type: string
+              format: uuid
+            traffic_bytes:
+              type: integer
+              format: int64
+              nullable: true
+            used_bytes:
+              type: integer
+              format: int64
+              nullable: true
+            remaining_bytes:
+              type: integer
+              format: int64
+    ResidentialCredentialsResponse:
+      type: object
+      required:
+        - success
+        - code
+        - data
+      properties:
+        success:
+          type: boolean
+        code:
+          type: integer
+        data:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
   responses:
     Unauthorized:
       description: The bearer token is missing, invalid, or no longer active.
@@ -1451,6 +1853,18 @@ components:
             $ref: "#/components/schemas/Error"
     RateLimited:
       description: The configured request limit has been exceeded.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationFailed:
+      description: Invalid request or package state.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: The child does not belong to this reseller.
       content:
         application/json:
           schema:

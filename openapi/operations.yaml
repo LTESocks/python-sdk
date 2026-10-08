@@ -3,6 +3,7 @@ resources:
   Ports: {attribute: ports, class_name: PortsResource}
   Payments: {attribute: payments, class_name: PaymentsResource}
   General: {attribute: general, class_name: GeneralResource}
+  ResidentialSubusers: {attribute: residential_subusers, class_name: ResidentialSubusersResource}
 
 operations:
   getUser: get
@@ -33,3 +34,11 @@ operations:
   listPlans: list_plans
   listServers: list_servers
   listSignatures: list_signatures
+  listResidentialSubusers: list
+  createResidentialSubuser: create
+  getResidentialSubuser: get
+  updateResidentialSubuser: update
+  deleteResidentialSubuser: delete
+  getResidentialSubuserPackage: get_package
+  getResidentialSubuserCredentials: get_credentials
+  changeResidentialSubuserTraffic: change_traffic

@@ -2,6 +2,7 @@
 
 Models use snake_case attributes and provide `to_dict()` / `from_dict()` helpers.
 
+- `CreateResidentialSubuser`
 - `DevelopmentError`
 - `Error`
 - `GeoIP`
@@ -12,6 +13,12 @@ Models use snake_case attributes and provide `to_dict()` / `from_dict()` helpers
 - `PortCredentials`
 - `PortLog`
 - `PortPlan`
+- `ResidentialCredentialsResponse`
+- `ResidentialPackageResponse`
+- `ResidentialSubuser`
+- `ResidentialSubuserListResponse`
+- `ResidentialSubuserResponse`
 - `Server`
+- `UpdateResidentialSubuser`
 - `User`
 - `UserPreferences`
